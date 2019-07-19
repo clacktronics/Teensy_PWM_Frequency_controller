@@ -42,13 +42,19 @@ Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT,
 
 
 // Pins used for PWM output - they are selected because they are assosiated with certain timers
+// You can't have different frequencies if the output pins are on the same timer
 
-#define RED_PWM 4
-#define GRE_PWM 30
-#define BLU_PWM 2
+// Teensy 3.5 timers
+//FTM0  5, 6, 9, 10, 20, 21, 22, 23
+//FTM1  3, 4
+//FTM2  29, 30
+//FTM3  2, 7, 8, 14, 35, 36, 37, 3
 
+#define RED_PWM 4 //FTM1
+#define GRE_PWM 30 // FTM2
+#define BLU_PWM 2 // FTM3
 
-// Button setting
+// Button setting, uses bounce library for simpleness
 
 #include <Bounce.h>
 #define RED_BT 23
@@ -78,7 +84,8 @@ void setup() {
 
   
   Serial.begin(9600);
-  Serial.println("TwoKnobs Encoder Test:");
+  Serial.println("PWM controller:");
+
 
   analogWriteResolution(8);
   
@@ -96,19 +103,49 @@ void setup() {
   analogWrite(BLU_PWM,100);
   pinMode(BLU_BT, INPUT_PULLUP);
 
-  display.clearDisplay();
-  display.display();
-  display.setTextSize(1);             // Normal 1:1 pixel scale
-  display.setTextColor(WHITE);        // Draw white text
-  display.setCursor(0,0);             // Start at top-left corner
-  display.println(F("Hello, world!"));
-  display.display();
-
-  
-  
+  writeDisplay();
 
 }
 
+void writeDisplay() {
+  display.clearDisplay();
+  display.setTextSize(1);             
+  display.setTextColor(WHITE);       
+  display.setCursor(0,0);            
+
+  if(redMode){display.setTextColor(BLACK, WHITE);}
+  display.print(F(" Red PWM: "));
+  display.println(redPWM);
+  display.setTextColor(WHITE, BLACK);
+  if(!redMode){display.setTextColor(BLACK, WHITE);}
+  display.print(F(" Red Freqency: "));
+  display.println(redFreq);
+  display.setTextColor(WHITE, BLACK);
+
+  display.println("---------------------");
+
+  if(greenMode){display.setTextColor(BLACK, WHITE);}
+  display.print(F(" Green PWM: "));
+  display.println(greenPWM);
+  display.setTextColor(WHITE, BLACK);
+  if(!greenMode){display.setTextColor(BLACK, WHITE);}
+  display.print(F(" Green Freqency: "));
+  display.println(greenFreq);
+  display.setTextColor(WHITE, BLACK);
+
+  display.println("---------------------");
+
+  if(blueMode){display.setTextColor(BLACK, WHITE);}
+  display.print(F(" Blue PWM: "));
+  display.println(bluePWM);
+  display.setTextColor(WHITE, BLACK);
+  if(!blueMode){display.setTextColor(BLACK, WHITE);}
+  display.print(F(" Blue Freqency: "));
+  display.println(blueFreq);
+  display.setTextColor(WHITE, BLACK);
+  
+  display.display();
+}
 
 long positionRed  = -999;
 long positionGreen = -999;
@@ -177,6 +214,8 @@ void loop() {
     Serial.print(") FREQ(");
     Serial.print(redFreq);
     Serial.print(")  ");
+
+    writeDisplay();
     
     analogWriteFrequency(RED_PWM, redFreq); 
     analogWrite(RED_PWM,redPWM);
