@@ -91,16 +91,16 @@ void setup() {
   
 
   pinMode(RED_PWM, OUTPUT);
-  analogWrite(RED_PWM,100);
+  analogWrite(RED_PWM,0);
   pinMode(RED_BT, INPUT_PULLUP);
   
   
   pinMode(GRE_PWM, OUTPUT);
-  analogWrite(GRE_PWM,100);
+  analogWrite(GRE_PWM,0);
   pinMode(GRE_BT, INPUT_PULLUP);
 
   pinMode(BLU_PWM, OUTPUT);
-  analogWrite(BLU_PWM,100);
+  analogWrite(BLU_PWM,0);
   pinMode(BLU_BT, INPUT_PULLUP);
 
   writeDisplay();
@@ -200,6 +200,33 @@ void loop() {
       } 
      }
   }
+
+    if ( redbutton.read() == LOW && redbutton.duration() > 500 ) { 
+    knobRed.write(0); 
+    redPWM=0; 
+    redFreq = 0;    
+    analogWriteFrequency(RED_PWM, redFreq); 
+    analogWrite(RED_PWM, redPWM); 
+    writeDisplay();
+    }
+
+    if ( greenbutton.read() == LOW && greenbutton.duration() > 500 ) { 
+    knobGreen.write(0); 
+    greenPWM=0; 
+    greenFreq = 0;    
+    analogWriteFrequency(GRE_PWM, greenFreq); 
+    analogWrite(GRE_PWM, greenPWM); 
+    writeDisplay();
+    }
+
+    if ( bluebutton.read() == LOW && bluebutton.duration() > 500 ) { 
+    knobBlue.write(0); 
+    bluePWM=0; 
+    blueFreq = 0;    
+    analogWriteFrequency(BLU_PWM, blueFreq); 
+    analogWrite(BLU_PWM, bluePWM); 
+    writeDisplay();
+    }
 
   
   long newRed, newGreen, newBlue;
