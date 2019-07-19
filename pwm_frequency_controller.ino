@@ -147,14 +147,15 @@ void writeDisplay() {
   display.display();
 }
 
-long positionRed  = -999;
-long positionGreen = -999;
-long positionBlue = -999;
+long positionRed  = 0;
+long positionGreen = 0;
+long positionBlue = 0;
 
 void loop() {
 
   if (redbutton.update()) { 
     if (redbutton.fallingEdge()) { 
+      writeDisplay();
       redMode = !redMode; 
       if(redMode) {
         Serial.println("Red in PWM mode"); 
@@ -170,6 +171,7 @@ void loop() {
 
   if (greenbutton.update()) { 
     if (greenbutton.fallingEdge()) { 
+      writeDisplay();
       greenMode = !greenMode; 
       if(greenMode) {
         Serial.println("Green in PWM mode"); 
@@ -185,6 +187,7 @@ void loop() {
 
     if (bluebutton.update()) { 
     if (bluebutton.fallingEdge()) { 
+      writeDisplay();
       blueMode = !blueMode; 
       if(blueMode) {
         Serial.println("Blue in PWM mode"); 
@@ -201,9 +204,9 @@ void loop() {
   
   long newRed, newGreen, newBlue;
   
-  newRed = max(0,knobRed.read())/4;
-  newGreen = max(0,knobGreen.read())/4;
-  newBlue = max(0,knobBlue.read())/4;
+  if(knobRed.read() >= 0){newRed = knobRed.read()/4;} else { knobRed.write(0); newRed = 0;}
+  if(knobGreen.read() >= 0){newGreen = knobGreen.read()/4;} else { knobGreen.write(0); newGreen = 0;}
+  if(knobBlue.read() >= 0){newBlue = knobBlue.read()/4;} else { knobBlue.write(0); newBlue = 0;}
   
   if (newRed != positionRed || newGreen != positionGreen || newBlue != positionBlue ) {
     
@@ -214,8 +217,6 @@ void loop() {
     Serial.print(") FREQ(");
     Serial.print(redFreq);
     Serial.print(")  ");
-
-    writeDisplay();
     
     analogWriteFrequency(RED_PWM, redFreq); 
     analogWrite(RED_PWM,redPWM);
@@ -247,5 +248,7 @@ void loop() {
     positionRed = newRed;
     positionGreen = newGreen;
     positionBlue = newBlue;
+
+    writeDisplay();
   }
 }
