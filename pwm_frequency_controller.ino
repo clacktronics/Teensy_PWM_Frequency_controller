@@ -1,3 +1,15 @@
+// PWM FREQUENCY CONTROLLER
+// ========================
+
+// Written by: Ben Bariwse - CLACKTRONICS.CO.UK
+// For Teensy 3.5, written in Arduino 1.8.9
+
+// Desicription: Using the inbuilt PWM perheprials of the Teensy 3.5 to create three PWM
+// outputs with independant frequency and PWM controls. The values are controlled by three
+// encoders and the values are shown on a 128x64 OLED display.
+
+// Libraries required : encoder (included with Teensy), bounce (included with Teensy), adafruit_SSD1306, adafruit_GFX, SPI, Wire
+
 //******Encoder Setup*****************************
 
 // This optional setting causes Encoder to use more optimized code,
@@ -7,10 +19,12 @@
 #include <Encoder.h>
 
 // Change these pin numbers to the pins connected to your encoder.
-//   Best Performance: both pins have interrupt capability
-//   Good Performance: only the first pin has interrupt capability
-//   Low Performance:  neither pin has interrupt capability
-//   All pins on the teensy 3.5 have interrupt capability - Ben
+// Best Performance: both pins have interrupt capability
+// Good Performance: only the first pin has interrupt capability
+// Low Performance:  neither pin has interrupt capability
+
+// All pins on the teensy 3.5 have interrupt capability - Ben
+
 Encoder knobRed(5, 6);
 Encoder knobGreen(7, 8);
 Encoder knobBlue(9, 10);
@@ -44,7 +58,7 @@ Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT,
 // Pins used for PWM output - they are selected because they are assosiated with certain timers
 // You can't have different frequencies if the output pins are on the same timer
 
-// Teensy 3.5 timers
+// Teensy 3.5 timers to PWM pins for reference
 //FTM0  5, 6, 9, 10, 20, 21, 22, 23
 //FTM1  3, 4
 //FTM2  29, 30
@@ -67,10 +81,14 @@ Bounce bluebutton = Bounce(BLU_BT, 10);  // 10 ms debounce
 
 
 // General global variables used******************
-
+// These store the values of the RGB modes and what the encoder is toggled to
 bool redMode, greenMode, blueMode;
 long redPWM, greenPWM, bluePWM;
 long redFreq, greenFreq, blueFreq;
+
+long positionRed  = 0;
+long positionGreen = 0;
+long positionBlue = 0;
 
 
 
@@ -86,7 +104,7 @@ void setup() {
   Serial.begin(9600);
   Serial.println("PWM controller:");
 
-
+  // This sets up the PWM resolution, e.g 8 would be range 0 to 255 = 0 to 100% PWM 
   analogWriteResolution(8);
   
 
@@ -106,6 +124,9 @@ void setup() {
   writeDisplay();
 
 }
+
+
+// This simply writes current PWM and Frequency values to the screen
 
 void writeDisplay() {
   display.clearDisplay();
@@ -147,11 +168,11 @@ void writeDisplay() {
   display.display();
 }
 
-long positionRed  = 0;
-long positionGreen = 0;
-long positionBlue = 0;
+
 
 void loop() {
+
+
 
   if (redbutton.update()) { 
     if (redbutton.fallingEdge()) { 
